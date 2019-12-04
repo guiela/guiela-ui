@@ -11,9 +11,9 @@ This is the UI source code for Guiela, an Open source project built on [VueJs](h
         - [Installation](#installation)
     - [Configuration](#configuration)
     - [Environment variables](#environment-variables)
-        - [VUEAPPAPIURL](#vueappapiurl)
-        - [VUEAPPCONVERTAPIURL](#vueappconvertapiurl)
-        - [VUEAPPPROCESSAPIURL](#vueappprocessapiurl)
+        - [VUE_APP_API_URL](#vueappapiurl)
+        - [VUE_APP_CONVERT_API_URL](#vueappconvertapiurl)
+        - [VUE_APP_PROCESS_API_URL](#vueappprocessapiurl)
         - [Compiles and hot-reloads for development](#compiles-and-hot-reloads-for-development)
     - [Contributing](#contributing)
     - [Issue Reporting Guidelines](#issue-reporting-guidelines)
@@ -46,7 +46,7 @@ This will take a few seconds to install all the dependencies required to run the
 
 ## 1.2. Configuration
 
-After installation, make a copy of the create a `.env` file in the root directory then copy and paste the contents of `.env.example` to it.
+After installation, create a `.env` file in the root directory then copy and paste the contents of `.env.example` to it.
 
 Change the `VUE_APP_API_URL` to the url of the Guiela API application and that is all. Only make changes to `VUE_APP_CONVERT_API_URL` and `VUE_APP_PROCESS_API_URL` if you know what your doing.
 
