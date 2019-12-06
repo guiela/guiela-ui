@@ -17,23 +17,45 @@
 
 							<div class="tab-pane fade show active" id="home">
 								<div class="row">
-									<div class="col-md-3">
-										<div class="form-group">
-											<label for="exampleFormControlSelect1">Delimiter</label>
-											<select v-model="form.delimiter" class="custom-select custom-select-sm" id="exampleFormControlSelect1">
-												<option value=";" selected>Semicolon ( ; )</option>
-												<option value=",">Comma ( , )</option>
-											</select>
-											<small id="fileHelp" class="form-text text-muted">
-												Select a delimeter.
-											</small>
+									<div class="col-md-6">
+										<div class="row">
+											<div class="col-md-3">
+												<div class="form-group">
+													<label for="exampleFormControlSelect1">Delimiter</label>
+													<select v-model="form.delimiter.domestic" class="custom-select custom-select-sm" id="exampleFormControlSelect1">
+														<option value=";" selected>Semicolon ( ; )</option>
+														<option value=",">Comma ( , )</option>
+													</select>
+													<small id="fileHelp" class="form-text text-muted">
+														Select a delimeter.
+													</small>
+												</div>
+											</div>
+											<div class="col-md-8">
+												<domestic-file-input @fileSelected="onDomesticFileSelected" label="Domestic File" :delimiter="form.delimiter.domestic"/>
+											</div>
 										</div>
 									</div>
-									<div class="col-md-4">
-										<domestic-file-input @fileSelected="onDomesticFileSelected" label="Domestic File" :delimiter="form.delimiter"/>
-									</div>
-									<div class="col-md-4">
-										<foreign-file-input @fileSelected="onForeignFileSelected" label="Foreign File"  :delimiter="form.delimiter"/>
+
+									<div class="col-md-6">
+										<div class="row">
+											<div class="col-md-3">
+												<div class="form-group">
+													<label for="exampleFormControlSelect1">Delimiter</label>
+													<select v-model="form.delimiter.foreign" class="custom-select custom-select-sm" id="exampleFormControlSelect1">
+														<option value=";" selected>Semicolon ( ; )</option>
+														<option value=",">Comma ( , )</option>
+													</select>
+													<small id="fileHelp" class="form-text text-muted">
+														Select a delimeter.
+													</small>
+												</div>
+											</div>
+
+											<div class="col-md-8">
+												<foreign-file-input @fileSelected="onForeignFileSelected" label="Foreign File"  :delimiter="form.delimiter.foreign"/>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -119,7 +141,10 @@
 					identifier: null,
 					matcher: null,
 					sum: false,
-					delimiter: null
+					delimiter: {
+						domestic: null,
+						foreign: null
+					}
 				}
 			}
 		},
