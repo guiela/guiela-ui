@@ -17,11 +17,23 @@
 
 							<div class="tab-pane fade show active" id="home">
 								<div class="row">
-									<div class="col-md-6">
-										<domestic-file-input @fileSelected="onDomesticFileSelected" label="Domestic File" />
+									<div class="col-md-3">
+										<div class="form-group">
+											<label for="exampleFormControlSelect1">Delimiter</label>
+											<select v-model="form.delimiter" class="custom-select custom-select-sm" id="exampleFormControlSelect1">
+												<option value=";" selected>Semicolon ( ; )</option>
+												<option value=",">Comma ( , )</option>
+											</select>
+											<small id="fileHelp" class="form-text text-muted">
+												Select a delimeter.
+											</small>
+										</div>
 									</div>
-									<div class="col-md-6">
-										<foreign-file-input @fileSelected="onForeignFileSelected" label="Foreign File" />
+									<div class="col-md-4">
+										<domestic-file-input @fileSelected="onDomesticFileSelected" label="Domestic File" :delimiter="form.delimiter"/>
+									</div>
+									<div class="col-md-4">
+										<foreign-file-input @fileSelected="onForeignFileSelected" label="Foreign File"  :delimiter="form.delimiter"/>
 									</div>
 								</div>
 							</div>
@@ -29,39 +41,47 @@
 							<div class="tab-pane fade" id="profile">
 								<div class="row">
 									<div class="col-md-6">
-											<label for="exampleInputFile">Identifier</label>
-											<select v-if="getDomesticHeader && getForeignHeader" v-model="form.identifier" class="custom-select custom-select-sm">
-													<option v-for="(header, index) in matchable" :value="header" v-text="header" :key="index"></option>
-											</select>
-											<select v-else class="custom-select custom-select-sm" disabled>
-												<option selected>Open this select menu</option>
-											</select>
-											<small id="fileHelp" class="form-text text-muted">
-												Select the column to be used to identify the row to be match and compared.
-											</small>
+										<div class="row">
+											<div class="col">
+												<label for="exampleInputFile">Identifier</label>
+												<select v-if="getDomesticHeader && getForeignHeader" v-model="form.identifier" class="custom-select custom-select-sm">
+														<option v-for="(header, index) in matchable" :value="header" v-text="header" :key="index"></option>
+												</select>
+												<select v-else class="custom-select custom-select-sm" disabled>
+													<option selected>Open this select menu</option>
+												</select>
+												<small id="fileHelp" class="form-text text-muted">
+													Select the column to be used to identify the row to be match and compared.
+												</small>
 
-											<label for="exampleInputFile">Matcher</label>
-											<select v-if="getDomesticHeader && getForeignHeader" v-model="form.matcher" class="custom-select custom-select-sm">
-												<option v-for="(header, index) in matchable" :value="header" v-text="header" v-bind:key="index"></option>
-											</select>
-											<select v-else class="custom-select custom-select-sm" disabled>
-												<option selected>Open this select menu</option>
-											</select>
-											<small id="fileHelp" class="form-text text-muted">
-												Select the column to be compared.
-											</small>
+												<label for="exampleInputFile">Matcher</label>
+												<select v-if="getDomesticHeader && getForeignHeader" v-model="form.matcher" class="custom-select custom-select-sm">
+													<option v-for="(header, index) in matchable" :value="header" v-text="header" v-bind:key="index"></option>
+												</select>
+												<select v-else class="custom-select custom-select-sm" disabled>
+													<option selected>Open this select menu</option>
+												</select>
+												<small id="fileHelp" class="form-text text-muted">
+													Select the column to be compared.
+												</small>
+											</div>
+										</div>
 									</div>
 									<div class="col-md-6">
-										<div class="custom-control custom-checkbox">
-											<input v-model="form.sum" type="checkbox" class="custom-control-input" id="sum">
-											<label class="custom-control-label" for="sum"><i class="fas fa-plus-square"></i> Sum</label>
+										<div class="row">
+											<div class="col">
+												<div class="custom-control custom-checkbox">
+													<input v-model="form.sum" type="checkbox" class="custom-control-input" id="sum">
+													<label class="custom-control-label" for="sum"><i class="fas fa-plus-square"></i> Sum</label>
+												</div>
+												<small id="fileHelp" class="form-text text-muted">
+														Sum up all the values in the matched column. <br/>
+														<span class="text-warning">
+															<strong>Warning!</strong> <br /> Please note that when you select this checkbox the column selected to be matched will be treated as an integer value when trying to return a sum of all its values. If the entire column does not contain <strong>ONLY</strong> integer values, that might cause the application to return an incorrect result.
+														</span>
+												</small>
+											</div>
 										</div>
-										<small id="fileHelp" class="form-text text-muted">
-												Sum up all the values in the matched column. <br/>
-												<span class="text-warning">
-													<strong>Warning!</strong> <br /> Please note that when you select this checkbox the column selected to be matched will be treated as an integer value when trying to return a sum of all its values. If the entire column does not contain <strong>ONLY</strong> integer values, that might cause the application to return an incorrect result.
-												</span>
-										</small>
 									</div>
 								</div>
 							</div>
@@ -98,7 +118,8 @@
 					foreign: null,
 					identifier: null,
 					matcher: null,
-					sum: false
+					sum: false,
+					delimiter: null
 				}
 			}
 		},
@@ -128,6 +149,7 @@
 				data.append('identifier', this.form.identifier);
 				data.append('matcher', this.form.matcher);
 				data.append('sum', this.form.sum);
+				data.append('delimiter', this.form.delimiter);
 
 				axios.post(process.env.VUE_APP_API_URL + process.env.VUE_APP_PROCESS_API_URL, data,
 					{headers: {'Content-Type': 'multipart/form-data'}})

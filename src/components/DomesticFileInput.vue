@@ -1,7 +1,7 @@
 <template>
   <div class="form-group">
     <label for="exampleInputEmail1" v-text="label"></label>
-    <input type="file" @change="handleChange" class="form-control-file" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <input :disabled="checkDelimiter" type="file" @change="handleChange" class="form-control-file" id="exampleInputEmail1" aria-describedby="emailHelp">
     <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
   </div>
 </template>
@@ -11,7 +11,7 @@
 
 	export default {
 		name: 'domestic-file-input',
-		props: ['label'],
+		props: ['label', 'delimiter'],
 		methods: {
 			handleChange(event) {
 				var files = event.target.files || event.dataTransfer.files;
@@ -20,6 +20,7 @@
 				var form = new FormData();
 
 				form.append('file', files[0]);
+				form.append('delimiter', this.delimiter);
 
 				this.extractDomesticFileDataToArray(form)
 
@@ -27,6 +28,15 @@
 			},
 
 			...mapActions(['extractDomesticFileDataToArray'])
+		},
+		computed: {
+			checkDelimiter() {
+				if (this.delimiter === ',' || this.delimiter === ';') {
+					return false;
+				}
+
+				return true;
+			}
 		}
 	}
 </script>
