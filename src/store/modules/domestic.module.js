@@ -1,15 +1,14 @@
-import axios from 'axios'
-
 export default {
   state: {
-			file: {
-				header: [],
-				records: [],
-				meta: []
-			}
+		file: {
+			header: [],
+			records: [],
+			meta: []
+		}
   },
 
   mutations: {
+		
 		/**
 		 * Update record
 		 */
@@ -28,29 +27,11 @@ export default {
 
       // Display an info toast with no title
       window.toastr.success('Domestic record removed!')
-    },
+    }
     
   },
 
   actions: {
-
-		/**
-		 * 
-		 * @param {*} param0 
-		 * @param {*} file 
-		 */
-    async extractDomesticFileDataToArray({ commit }, file) {
-      const response = await axios.post(process.env.VUE_APP_API_URL + process.env.VUE_APP_CONVERT_API_URL, file, 
-          {headers: {'Content-Type': 'multipart/form-data'}}).then((response) => {
-
-				// Display an info toast with no title
-        window.toastr.success('Domestic file content fetched and ready!')
-
-        return response;
-      })
-
-      commit('updateDomestic', response.data)
-    },
 
 		/**
 		 * 
@@ -68,19 +49,19 @@ export default {
 		 */
     deleteDomestic({ commit }, uuid) {
       commit('deleteDomestic', uuid)
-    },
+		}
   },
 
   getters: {
 
 		/**
-		 * 
+		 * Get domestic header
 		 */
 		getDomesticHeader: state => state.file.header,
 		
 		/**
-		 * 
+		 * Get domestic records
 		 */
-    getDomesticRecords: state => state.file.records
+		getDomesticRecords: state => state.file.records
   }
 }

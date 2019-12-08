@@ -1,12 +1,10 @@
-import axios from 'axios'
-
 export default {
   state: {
-			file: {
-				header: [],
-				records: [],
-				meta: []
-			}
+		file: {
+			header: [],
+			records: [],
+			meta: []
+		}
   },
 
   mutations: {
@@ -29,29 +27,11 @@ export default {
 
       // Display an info toast with no title
       window.toastr.success('Foreign record removed!')
-    },
+    }
     
   },
 
   actions: {
-
-		/**
-		 * 
-		 * @param {*} param0 
-		 * @param {*} file 
-		 */
-    async extractForeignFileDataToArray({ commit }, file) {
-      const response = await axios.post(process.env.VUE_APP_API_URL + process.env.VUE_APP_CONVERT_API_URL, file, 
-          {headers: {'Content-Type': 'multipart/form-data'}}).then((response) => {
-
-				// Display an info toast with no title
-        window.toastr.success('Foreign file content fetched and ready!')
-
-        return response;
-      })
-
-      commit('updateForeign', response.data)
-    },
 
 		/**
 		 * 
@@ -69,18 +49,18 @@ export default {
 		 */
     deleteForeign({ commit }, uuid) {
       commit('deleteForeign', uuid)
-    },
+    }
   },
 
   getters: {
 
 		/**
-		 * 
+		 * Get foreign header
 		 */
 		getForeignHeader: state => state.file.header,
 		
 		/**
-		 * 
+		 * Get foreign records
 		 */
     getForeignRecords: state => state.file.records
   }

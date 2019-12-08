@@ -8,9 +8,15 @@
 							<a class="nav-link active" data-toggle="tab" href="#home"><i class="fas fa-upload"></i> Upload</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" data-toggle="tab" href="#profile"><i class="fas fa-wrench"></i> Preference</a>
+							<a class="nav-link" data-toggle="tab" href="#profile"><i class="fas fa-filter"></i> Constraints</a>
 						</li>
 					</ul>
+
+					<b-alert v-if="errors.length >= 1" variant="warning" show dismissible>
+						<ol>
+							<li v-for="(error, index) in errors" v-text="error" :key="`error-${index}`"></li>
+						</ol>
+					</b-alert>
 
 					<form @submit.prevent="onSubmit" enctype="multipart/form-data">
 						<div id="myTabContent" class="tab-content pt-2">
@@ -20,19 +26,15 @@
 									<div class="col-md-6">
 										<div class="row">
 											<div class="col-md-3">
-												<div class="form-group">
-													<label for="exampleFormControlSelect1">Delimiter</label>
-													<select v-model="form.delimiter.domestic" class="custom-select custom-select-sm" id="exampleFormControlSelect1">
-														<option value=";" selected>Semicolon ( ; )</option>
-														<option value=",">Comma ( , )</option>
-													</select>
-													<small id="fileHelp" class="form-text text-muted">
-														Select a delimeter.
-													</small>
-												</div>
+												<delimiter-input @domestic-delimiter-selected="onDomesticDelimiter" label="domestic"/>
 											</div>
 											<div class="col-md-8">
-												<domestic-file-input @fileSelected="onDomesticFileSelected" label="Domestic File" :delimiter="form.delimiter.domestic"/>
+												<file-input 
+													@fileSelected="onDomesticFileSelected" 
+													@file-error="this.onFileError"
+													:delimiter="form.delimiter.domestic"
+													label="Domestic File" 
+													name="Domestic" />
 											</div>
 										</div>
 									</div>
@@ -40,20 +42,16 @@
 									<div class="col-md-6">
 										<div class="row">
 											<div class="col-md-3">
-												<div class="form-group">
-													<label for="exampleFormControlSelect1">Delimiter</label>
-													<select v-model="form.delimiter.foreign" class="custom-select custom-select-sm" id="exampleFormControlSelect1">
-														<option value=";" selected>Semicolon ( ; )</option>
-														<option value=",">Comma ( , )</option>
-													</select>
-													<small id="fileHelp" class="form-text text-muted">
-														Select a delimeter.
-													</small>
-												</div>
+												<delimiter-input @foreign-delimiter-selected="onForeignDelimiter" label="foreign"/>
 											</div>
 
 											<div class="col-md-8">
-												<foreign-file-input @fileSelected="onForeignFileSelected" label="Foreign File"  :delimiter="form.delimiter.foreign"/>
+												<file-input 
+													@fileSelected="onForeignFileSelected"  
+													@file-error="this.onFileError"
+													:delimiter="form.delimiter.foreign"
+													label="Foreign File" 
+													name="Foreign" />
 											</div>
 										</div>
 									</div>
@@ -66,22 +64,18 @@
 										<div class="row">
 											<div class="col">
 												<label for="exampleInputFile">Identifier</label>
-												<select v-if="getDomesticHeader && getForeignHeader" v-model="form.identifier" class="custom-select custom-select-sm">
-														<option v-for="(header, index) in matchable" :value="header" v-text="header" :key="index"></option>
-												</select>
-												<select v-else class="custom-select custom-select-sm" disabled>
+												<select :disabled="getDomesticHeader.length < 1 && getForeignHeader.length < 1" v-model="form.identifier" class="custom-select custom-select-sm">
 													<option selected>Open this select menu</option>
+													<option v-for="(header, index) in matchable" :value="header" v-text="header" :key="index"></option>
 												</select>
 												<small id="fileHelp" class="form-text text-muted">
-													Select the column to be used to identify the row to be match and compared.
+													Select the column to be used to identify the row to be matched and compared.
 												</small>
 
 												<label for="exampleInputFile">Matcher</label>
-												<select v-if="getDomesticHeader && getForeignHeader" v-model="form.matcher" class="custom-select custom-select-sm">
-													<option v-for="(header, index) in matchable" :value="header" v-text="header" v-bind:key="index"></option>
-												</select>
-												<select v-else class="custom-select custom-select-sm" disabled>
+												<select :disabled="getDomesticHeader.length < 1 && getForeignHeader.length < 1" v-model="form.matcher" class="custom-select custom-select-sm">
 													<option selected>Open this select menu</option>
+													<option v-for="(header, index) in matchable" :value="header" v-text="header" v-bind:key="index"></option>
 												</select>
 												<small id="fileHelp" class="form-text text-muted">
 													Select the column to be compared.
@@ -125,9 +119,9 @@
 
 <script>
 	// @ is an alias to /src
-	import DomesticFileInput from '@/components/DomesticFileInput.vue'
-	import ForeignFileInput from '@/components/ForeignFileInput.vue'
+	import FileInput from '@/components/FileInput.vue'
 	import DataDisplay from '@/components/DataDisplay.vue'
+	import DelimiterInput from '@/components/DelimiterInput.vue'
 	import { mapGetters, mapActions } from 'vuex'
 	import axios from 'axios'
 
@@ -135,6 +129,8 @@
 		name: 'dashboard',
 		data() {
 			return {
+				errors: [],
+
 				form: {
 					domestic: null,
 					foreign: null,
@@ -150,48 +146,153 @@
 		},
 
 		components: {
-			DomesticFileInput,
-			ForeignFileInput,
+			// Import DomesticFileInput component.
+			FileInput,
+			// Import DataDisplay component.
 			DataDisplay,
+			// Import DelimiterInput component.
+			DelimiterInput
 		},
 
 		methods: {
+			// Import actions from vuex.
 			...mapActions(['updateDomestic', 'updateForeign']),
 
+			/**
+			 * Respond to the onForeignFileSelected
+			 * event and assign it's value to the form
+			 * domestic property.
+			 * 
+			 * @param mixed value
+			 */
 			onDomesticFileSelected(value) {
 				this.form.domestic = value;
 			},
+
+			/**
+			 * Respond to the onDomesticFileSelected
+			 * event and assign it's value to the form
+			 * foreign property.
+			 * 
+			 * @param mixed value
+			 */
 			onForeignFileSelected(value) {
 				this.form.foreign = value;
 			},
+
+			/**
+			 * Respond to the domestic-delimiter-selected
+			 * event and assign it's value to the form
+			 * delimiter domestic property.
+			 * 
+			 * @param mixed value
+			 */
+			onDomesticDelimiter(value) {
+				this.form.delimiter.domestic = value
+			},
+
+			/**
+			 * Respond to the foreign-delimiter-selected
+			 * event and assign it's value to the form
+			 * delimiter foreign property.
+			 * 
+			 * @param mixed value
+			 */
+			onForeignDelimiter(value) {
+				this.form.delimiter.foreign = value
+			},
+
+			onFileError(value) {
+				this.errors.push(value)
+			},
+
+			/**
+			 * Submit form
+			 * 
+			 * This function is called when the submit button is pressed.
+			 */
 			onSubmit() {
-				// Display an info toast with no title
-				window.toastr.info('Submitting data for processing!')
-				const data = new FormData();
+				this.validate()
 
-				data.append('domestic', this.form.domestic);
-				data.append('foreign', this.form.foreign);
-				data.append('identifier', this.form.identifier);
-				data.append('matcher', this.form.matcher);
-				data.append('sum', this.form.sum);
-				data.append('delimiter', this.form.delimiter);
+				if (this.errors.length < 1) {
+					// Reset errors
+					this.errors = []
 
-				axios.post(process.env.VUE_APP_API_URL + process.env.VUE_APP_PROCESS_API_URL, data,
-					{headers: {'Content-Type': 'multipart/form-data'}})
-					.then((response) => {
-						this.updateDomestic(response.data.domestic);
-						this.updateForeign(response.data.foreign);
+					// Display an info toast with no title
+					window.toastr.info('Submitting data for processing!')
 
-						// Display an info toast with no title
-						window.toastr.success('Processing complete!', 'Success')
-					});
+					const data = new FormData();
+
+					data.append('domestic', this.form.domestic);
+					data.append('foreign', this.form.foreign);
+					data.append('identifier', this.form.identifier);
+					data.append('matcher', this.form.matcher);
+					data.append('sum', this.form.sum);
+					data.append('delimiter', this.form.delimiter);
+
+					axios.post(process.env.VUE_APP_API_URL + process.env.VUE_APP_PROCESS_API_URL, data,
+						{headers: {'Content-Type': 'multipart/form-data'}})
+						.then((response) => {
+							this.updateDomestic(response.data.domestic);
+							this.updateForeign(response.data.foreign);
+
+							// Display an info toast with no title
+							window.toastr.success('Processing complete!', 'Success')
+						});
+				}
+			},
+
+			validate() {
+				this.errors = []
+
+				// Make sure domestic field is not null.
+				if (! this.form.domestic){
+					this.errors.push('The domestic field is required.')
+				}
+
+				// Make sure foreign field is not null.
+				if (! this.form.foreign){
+					this.errors.push('The foreign field is required.')
+				}
+
+				// Make sure identifier field is not null.
+				if (! this.form.identifier){
+					this.errors.push('The identifier field is required.')
+				}
+
+				// Make sure Matcher field is not null.
+				if (! this.form.matcher){
+					this.errors.push('The matcher field is required.')
+				}
+
+				// Make sure domestic delimiter field is not null.
+				if (! this.form.delimiter.domestic){
+					this.errors.push('The delimiter for domestic field input is required.')
+				}
+
+				// Make sure foreign delimiter field is not null.
+				if (! this.form.delimiter.foreign){
+					this.errors.push('The delimiter for foreign field input is required.')
+				}
 			}
 		},
 
 		computed: {
+			// Import vuex getters.
+			...mapGetters([
+				'getDomesticHeader', 'getDomesticRecords',
+				'getForeignHeader', 'getForeignRecords'
+			]),
 
+			/**
+			 * This filters through the headers and return the 
+			 * values that are present in both headers.
+			 * 
+			 * @returns array
+			 */
 			matchable() {
 				var arr=[];
+				
 				for(var a = 0; a <= this.getDomesticHeader.length; a++) {
 					for(var b = 0; b <= this.getForeignHeader.length; b++) {
 						if ((this.getDomesticHeader[a] === this.getForeignHeader[b]) 
@@ -205,12 +306,14 @@
 				}
 
 				return arr;
-			},
-
-			...mapGetters([
-				'getDomesticHeader', 'getDomesticRecords',
-				'getForeignHeader', 'getForeignRecords'
-			])
+			}
 		}
 	}
 </script>
+
+<style scoped>
+	.alert {
+		margin-top: 6px;
+		border-radius: 0;
+	}
+</style>
