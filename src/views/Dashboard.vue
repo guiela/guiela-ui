@@ -24,36 +24,21 @@
 							<div class="tab-pane fade show active" id="home">
 								<div class="row">
 									<div class="col-md-6">
-										<div class="row">
-											<div class="col-md-3">
-												<delimiter-input @domestic-delimiter-selected="onDomesticDelimiter" label="domestic"/>
-											</div>
-											<div class="col-md-8">
-												<file-input 
-													@fileSelected="onDomesticFileSelected" 
-													@file-error="this.onFileError"
-													:delimiter="form.delimiter.domestic"
-													label="Domestic File" 
-													name="Domestic" />
-											</div>
-										</div>
+										<file-input
+											@domestic-delimiter-selected="onDomesticDelimiter" 
+											@fileSelected="onDomesticFileSelected" 
+											@file-error="this.onFileError"
+											label="Domestic File" 
+											name="Domestic" />
 									</div>
 
 									<div class="col-md-6">
-										<div class="row">
-											<div class="col-md-3">
-												<delimiter-input @foreign-delimiter-selected="onForeignDelimiter" label="foreign"/>
-											</div>
-
-											<div class="col-md-8">
-												<file-input 
-													@fileSelected="onForeignFileSelected"  
-													@file-error="this.onFileError"
-													:delimiter="form.delimiter.foreign"
-													label="Foreign File" 
-													name="Foreign" />
-											</div>
-										</div>
+										<file-input 
+											@foreign-delimiter-selected="onForeignDelimiter"
+											@fileSelected="onForeignFileSelected"  
+											@file-error="this.onFileError"
+											label="Foreign File" 
+											name="Foreign" />
 									</div>
 								</div>
 							</div>
@@ -121,7 +106,6 @@
 	// @ is an alias to /src
 	import FileInput from '@/components/FileInput.vue'
 	import DataDisplay from '@/components/DataDisplay.vue'
-	import DelimiterInput from '@/components/DelimiterInput.vue'
 	import { mapGetters, mapActions } from 'vuex'
 	import axios from 'axios'
 
@@ -149,9 +133,7 @@
 			// Import DomesticFileInput component.
 			FileInput,
 			// Import DataDisplay component.
-			DataDisplay,
-			// Import DelimiterInput component.
-			DelimiterInput
+			DataDisplay
 		},
 
 		methods: {
